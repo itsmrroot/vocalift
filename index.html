@@ -14,7 +14,10 @@
   <nav>
     <div class="logo">Voca<span>Lift</span></div>
     <div class="nav-right">
-      <button class="lang-btn" id="lang-toggle" onclick="toggleLang()">DE</button>
+      <div class="lang-switch">
+        <button class="lang-opt active" id="lang-en" onclick="setLang('en')">EN</button>
+        <button class="lang-opt" id="lang-de" onclick="setLang('de')">DE</button>
+      </div>
       <button class="theme-btn" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme">☀️</button>
     </div>
   </nav>

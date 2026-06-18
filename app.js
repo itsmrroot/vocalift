@@ -156,8 +156,9 @@ function t(key, ...args) {
 }
 
 function applyLang() {
-  // Nav button shows the OTHER language (what you'll switch to)
-  document.getElementById('lang-toggle').textContent = lang === 'en' ? 'DE' : 'EN';
+  // Segmented EN/DE switch — highlight active lang
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+  document.getElementById('lang-de').classList.toggle('active', lang === 'de');
 
   // Home
   document.querySelector('.hero-eyebrow').textContent = t('eyebrow');
@@ -236,8 +237,8 @@ function applyLang() {
   document.querySelector('.missed-title').textContent = t('missed-title');
 }
 
-function toggleLang() {
-  lang = lang === 'en' ? 'de' : 'en';
+function setLang(l) {
+  lang = l;
   localStorage.setItem('vocalift-lang', lang);
   applyLang();
 }
