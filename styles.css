@@ -67,6 +67,33 @@ nav {
   transition: background 0.2s, border-color 0.2s;
 }
 
+k.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lang-btn {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 99px;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text2);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.lang-btn:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--text3);
+}
+
 .logo {
   font-family: 'Instrument Serif', serif;
   font-size: 1.4rem;
