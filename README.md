@@ -6,7 +6,7 @@
 ![No dependencies](https://img.shields.io/badge/dependencies-none-brightgreen?style=flat-square)
 ![Dark mode](https://img.shields.io/badge/dark%20mode-supported-blueviolet?style=flat-square)
 
-🌐 **Live demo:** [www.example.com](https://www.example.com)
+🌐 **Live demo:** [https://itsmrroot.github.io/vocalift/](https://itsmrroot.github.io/vocalift/)
 
 ---
 
