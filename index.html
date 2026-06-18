@@ -11,189 +11,214 @@
 </head>
 <body>
 
-  <nav>
-    <div class="logo">Voca<span>Lift</span></div>
-    <div class="nav-right">
-      <div class="lang-switch">
-        <button class="lang-opt active" id="lang-en" onclick="setLang('en')">EN</button>
-        <button class="lang-opt" id="lang-de" onclick="setLang('de')">DE</button>
-      </div>
-      <button class="theme-btn" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme">☀️</button>
+<nav>
+  <div class="logo">Voca<span>Lift</span></div>
+  <div class="nav-right">
+    <div class="lang-switch">
+      <button class="lang-opt active" id="lang-en" onclick="setLang('en')">EN</button>
+      <button class="lang-opt" id="lang-de" onclick="setLang('de')">DE</button>
     </div>
-  </nav>
+    <button class="theme-btn" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme">☀️</button>
+  </div>
+</nav>
 
-  <!-- HOME -->
-  <section class="screen active" id="screen-home">
-    <div class="hero-eyebrow">vocabulary trainer</div>
-    <h1 class="hero-title">Learn any words,<br><em>your way</em></h1>
-    <p class="hero-sub">Add your own vocabulary list, then let VocaLift quiz you until you know every word cold.</p>
-    <div class="home-actions">
-      <button class="btn-primary" id="btn-manual" onclick="goTo('screen-setup')">✏️ Enter words manually</button>
-      <button class="btn-upload" id="btn-upload-file" onclick="document.getElementById('file-upload-input').click()">📂 Upload a file</button>
-      <input type="file" id="file-upload-input" accept=".csv,.txt" style="display:none" onchange="handleFileUpload(event)" />
-    </div>
-    <p class="upload-hint">Supported formats: <code>.csv</code> or <code>.txt</code> — one pair per line, separated by a comma, tab, or semicolon.<br>Example: <code>keyboard,Tastatur</code></p>
-    <div class="features">
-      <div class="feat">
-        <div class="feat-icon">📝</div>
-        <div class="feat-title">Your own words</div>
-        <div class="feat-desc">Type pairs manually or upload a file instantly.</div>
-      </div>
-      <div class="feat">
-        <div class="feat-icon">🔀</div>
-        <div class="feat-title">Choose direction</div>
-        <div class="feat-desc">Quiz EN→DE, DE→EN, or both randomly.</div>
-      </div>
-      <div class="feat">
-        <div class="feat-icon">🎯</div>
-        <div class="feat-title">Type to learn</div>
-        <div class="feat-desc">Type every answer — no multiple choice shortcuts.</div>
-      </div>
-    </div>
-  </section>
+<!-- HOME -->
+<section class="screen active" id="screen-home">
+  <div class="hero-eyebrow">vocabulary trainer</div>
+  <h1 class="hero-title">Learn any words,<br><em>your way</em></h1>
+  <p class="hero-sub">Add your own vocabulary list, then let VocaLift quiz you until you know every word cold.</p>
+  <div class="home-actions">
+    <button class="btn-primary" id="btn-manual" onclick="goTo('screen-setup')">✏️ Enter words manually</button>
+  </div>
 
-  <!-- SETUP -->
-  <section class="screen" id="screen-setup">
-    <div class="screen-header">
-      <div class="step-label" id="setup-step">Step 1 of 2</div>
-      <h2 class="screen-title" id="setup-title">How many words<br>do you want to learn?</h2>
-    </div>
-    <div class="count-selector">
-      <div class="count-label">Choose a preset or enter a custom number</div>
-      <div class="count-chips">
-        <button class="chip" onclick="selectCount(5, this)">5</button>
-        <button class="chip" onclick="selectCount(10, this)">10</button>
-        <button class="chip active" onclick="selectCount(15, this)">15</button>
-        <button class="chip" onclick="selectCount(20, this)">20</button>
-        <button class="chip" onclick="selectCount(30, this)">30</button>
+  <div class="upload-zone" id="upload-zone"
+       onclick="document.getElementById('file-upload-input').click()"
+       ondragover="onDragOver(event)"
+       ondragleave="onDragLeave(event)"
+       ondrop="onDrop(event)">
+    <input type="file" id="file-upload-input" accept=".csv,.txt" style="display:none" onchange="handleFileUpload(event)" />
+    <div class="upload-zone-icon">📂</div>
+    <div class="upload-zone-title" id="upload-zone-title">Drop your file here, or click to browse</div>
+    <div class="upload-zone-sub" id="upload-zone-sub">Supports <code>.csv</code> and <code>.txt</code> files</div>
+    <div class="upload-zone-format">
+      <div class="upload-format-card">
+        <div class="ufc-label">CSV example</div>
+        <code class="ufc-code">keyboard,Tastatur<br>brightness,Helligkeit<br>resolution,Auflösung</code>
       </div>
-      <div class="count-custom">
-        <label for="custom-count" id="custom-label">or custom:</label>
-        <input type="number" id="custom-count" min="2" max="200" placeholder="e.g. 25" oninput="onCustomCount(this)" />
+      <div class="upload-format-card">
+        <div class="ufc-label">TXT with semicolons</div>
+        <code class="ufc-code">keyboard;Tastatur<br>brightness;Helligkeit<br>resolution;Auflösung</code>
       </div>
     </div>
-    <div style="display:flex; gap:10px; width:100%; justify-content:space-between">
-      <button class="btn-secondary" id="setup-back-btn" onclick="goTo('screen-home')">← Back</button>
-      <button class="btn-primary" id="setup-next-btn" onclick="goToEnter()">Next: enter words →</button>
-    </div>
-  </section>
+  </div>
 
-  <!-- WORD ENTRY -->
-  <section class="screen" id="screen-enter">
-    <div class="entry-progress">
-      <div class="ep-bar"><div class="ep-fill" id="ep-fill" style="width:0%"></div></div>
-      <div class="ep-count" id="ep-count">0 / 0 filled</div>
+  <div class="features">
+    <div class="feat">
+      <div class="feat-icon">📝</div>
+      <div class="feat-title">Your own words</div>
+      <div class="feat-desc">Type pairs manually or upload a file instantly.</div>
     </div>
-    <div class="screen-header">
-      <div class="step-label" id="enter-step">Step 2 of 2</div>
-      <h2 class="screen-title" id="enter-title">Enter your vocabulary</h2>
-      <p style="font-size:0.88rem; color:var(--text2); margin-top:0.5rem" id="enter-subtitle">
-        Fill in each word in English and German. You can add more words any time.
-      </p>
+    <div class="feat">
+      <div class="feat-icon">🔀</div>
+      <div class="feat-title">Choose direction</div>
+      <div class="feat-desc">Quiz EN→DE, DE→EN, or both randomly.</div>
     </div>
-    <div id="word-entries"></div>
-    <button class="add-more-btn" id="add-more-btn" onclick="addWordRow()">+ add another word</button>
-    <div style="display:flex; gap:10px; width:100%; justify-content:space-between">
-      <button class="btn-secondary" id="enter-back-btn" onclick="goTo('screen-setup')">← Back</button>
-      <button class="btn-primary" id="start-quiz-btn" onclick="goToQuizSetup()" disabled>Next: quiz settings →</button>
+    <div class="feat">
+      <div class="feat-icon">🎯</div>
+      <div class="feat-title">Type to learn</div>
+      <div class="feat-desc">Type every answer — no multiple choice shortcuts.</div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- QUIZ SETTINGS -->
-  <section class="screen" id="screen-quiz-settings">
-    <div class="screen-header">
-      <div class="step-label" id="qs-step">Almost ready</div>
-      <h2 class="screen-title" id="qs-title">Choose quiz direction</h2>
-      <p style="font-size:0.88rem; color:var(--text2); margin-top:0.5rem" id="qs-sub">Which direction should the quiz go?</p>
+<!-- SETUP -->
+<section class="screen" id="screen-setup">
+  <div class="screen-header">
+    <div class="step-label" id="setup-step">Step 1 of 2</div>
+    <h2 class="screen-title" id="setup-title">How many words<br>do you want to learn?</h2>
+  </div>
+  <div class="count-selector">
+    <div class="count-label">Choose a preset or enter a custom number</div>
+    <div class="count-chips">
+      <button class="chip" onclick="selectCount(5, this)">5</button>
+      <button class="chip" onclick="selectCount(10, this)">10</button>
+      <button class="chip active" onclick="selectCount(15, this)">15</button>
+      <button class="chip" onclick="selectCount(20, this)">20</button>
+      <button class="chip" onclick="selectCount(30, this)">30</button>
     </div>
-    <div class="dir-options">
-      <button class="dir-option active" id="dir-both" onclick="selectDir('both', this)">
-        <div class="dir-option-icon">🔀</div>
+    <div class="count-custom">
+      <label for="custom-count" id="custom-label">or custom:</label>
+      <input type="number" id="custom-count" min="2" max="200" placeholder="e.g. 25" oninput="onCustomCount(this)" />
+    </div>
+  </div>
+  <div style="display:flex; gap:10px; width:100%; justify-content:space-between">
+    <button class="btn-secondary" id="setup-back-btn" onclick="goTo('screen-home')">← Back</button>
+    <button class="btn-primary" id="setup-next-btn" onclick="goToEnter()">Next: enter words →</button>
+  </div>
+</section>
+
+<!-- WORD ENTRY -->
+<section class="screen" id="screen-enter">
+  <div class="entry-progress">
+    <div class="ep-bar"><div class="ep-fill" id="ep-fill" style="width:0%"></div></div>
+    <div class="ep-count" id="ep-count">0 / 0 filled</div>
+  </div>
+  <div class="screen-header">
+    <div class="step-label" id="enter-step">Step 2 of 2</div>
+    <h2 class="screen-title" id="enter-title">Enter your vocabulary</h2>
+    <p style="font-size:0.88rem; color:var(--text2); margin-top:0.5rem" id="enter-subtitle">
+      Fill in each word in English and German. You can add more words any time.
+    </p>
+  </div>
+  <div id="word-entries"></div>
+  <button class="add-more-btn" id="add-more-btn" onclick="addWordRow()">+ add another word</button>
+  <div style="display:flex; gap:10px; width:100%; justify-content:space-between">
+    <button class="btn-secondary" id="enter-back-btn" onclick="goTo('screen-setup')">← Back</button>
+    <button class="btn-primary" id="start-quiz-btn" onclick="goToQuizSetup()" disabled>Next: quiz settings →</button>
+  </div>
+</section>
+
+<!-- QUIZ SETTINGS -->
+<section class="screen" id="screen-quiz-settings">
+  <div class="screen-header">
+    <div class="step-label" id="qs-step">Almost ready</div>
+    <h2 class="screen-title" id="qs-title">Choose quiz direction</h2>
+    <p style="font-size:0.88rem; color:var(--text2); margin-top:0.5rem" id="qs-sub">Which direction should the quiz go?</p>
+  </div>
+  <div class="dir-options">
+    <button class="dir-option active" id="dir-both" onclick="selectDir('both', this)">
+      <div class="dir-option-icon">🔀</div>
+      <div>
         <div class="dir-option-label" id="dir-both-label">Both directions</div>
         <div class="dir-option-desc" id="dir-both-desc">Random mix of EN→DE and DE→EN</div>
-      </button>
-      <button class="dir-option" id="dir-en" onclick="selectDir('en_de', this)">
-        <div class="dir-option-icon">🇬🇧</div>
+      </div>
+    </button>
+    <button class="dir-option" id="dir-en" onclick="selectDir('en_de', this)">
+      <div class="dir-option-icon">🇬🇧</div>
+      <div>
         <div class="dir-option-label" id="dir-en-label">English → German</div>
         <div class="dir-option-desc" id="dir-en-desc">See English, type German</div>
-      </button>
-      <button class="dir-option" id="dir-de" onclick="selectDir('de_en', this)">
-        <div class="dir-option-icon">🇩🇪</div>
+      </div>
+    </button>
+    <button class="dir-option" id="dir-de" onclick="selectDir('de_en', this)">
+      <div class="dir-option-icon">🇩🇪</div>
+      <div>
         <div class="dir-option-label" id="dir-de-label">German → English</div>
         <div class="dir-option-desc" id="dir-de-desc">See German, type English</div>
-      </button>
-    </div>
-    <div style="display:flex; gap:10px; width:100%; justify-content:space-between; margin-top:1.5rem">
-      <button class="btn-secondary" id="qs-back-btn" onclick="goTo('screen-enter')">← Back</button>
-      <button class="btn-primary" id="qs-start-btn" onclick="startQuiz()">Start quiz →</button>
-    </div>
-  </section>
+      </div>
+    </button>
+  </div>
+  <div style="display:flex; gap:10px; width:100%; justify-content:space-between; margin-top:1.5rem">
+    <button class="btn-secondary" id="qs-back-btn" onclick="goTo('screen-enter')">← Back</button>
+    <button class="btn-primary" id="qs-start-btn" onclick="startQuiz()">Start quiz →</button>
+  </div>
+</section>
 
-  <!-- QUIZ -->
-  <section class="screen" id="screen-quiz">
-    <div class="quiz-top">
-      <div class="quiz-stats">
-        <span class="qstat"><strong id="qs-correct">0</strong> <span id="qs-correct-lbl">correct</span></span>
-        <span class="qstat"><strong id="qs-wrong">0</strong> <span id="qs-wrong-lbl">wrong</span></span>
-      </div>
-      <div id="qs-counter" style="font-size:0.82rem; color:var(--text3); font-weight:500">1 / 10</div>
+<!-- QUIZ -->
+<section class="screen" id="screen-quiz">
+  <div class="quiz-top">
+    <div class="quiz-stats">
+      <span class="qstat"><strong id="qs-correct">0</strong> <span id="qs-correct-lbl">correct</span></span>
+      <span class="qstat"><strong id="qs-wrong">0</strong> <span id="qs-wrong-lbl">wrong</span></span>
     </div>
-    <div class="quiz-prog-wrap">
-      <div class="qp-bar"><div class="qp-fill" id="qp-fill" style="width:0%"></div></div>
+    <div id="qs-counter" style="font-size:0.82rem; color:var(--text3); font-weight:500">1 / 10</div>
+  </div>
+  <div class="quiz-prog-wrap">
+    <div class="qp-bar"><div class="qp-fill" id="qp-fill" style="width:0%"></div></div>
+  </div>
+  <div class="quiz-card">
+    <span class="dir-pill pill-en" id="q-pill">English → German</span>
+    <p class="quiz-question" id="q-text">word</p>
+    <div class="quiz-input-row">
+      <input type="text" id="q-input" placeholder="type your answer…" autocomplete="off" autocorrect="off" spellcheck="false" />
+      <button class="check-btn" id="check-btn" onclick="checkAnswer()">Check</button>
     </div>
-    <div class="quiz-card">
-      <span class="dir-pill pill-en" id="q-pill">English → German</span>
-      <p class="quiz-question" id="q-text">word</p>
-      <div class="quiz-input-row">
-        <input type="text" id="q-input" placeholder="type your answer…" autocomplete="off" autocorrect="off" spellcheck="false" />
-        <button class="check-btn" id="check-btn" onclick="checkAnswer()">Check</button>
-      </div>
-      <div class="hint-row">
-        <span class="hint-link" id="q-hint" onclick="showHint()">show hint</span>
-        <span id="q-enter-hint" style="font-size:0.78rem; color:var(--text3)">or press Enter</span>
-      </div>
+    <div class="hint-row">
+      <span class="hint-link" id="q-hint" onclick="showHint()">show hint</span>
+      <span id="q-enter-hint" style="font-size:0.78rem; color:var(--text3)">or press Enter</span>
     </div>
-    <div class="feedback-box" id="q-feedback" style="display:none"></div>
-    <div class="next-row" id="q-next-row" style="display:none">
-      <button class="next-btn" onclick="nextCard()"><span id="next-lbl">Next</span> <span style="font-size:1rem">→</span></button>
-    </div>
-  </section>
+  </div>
+  <div class="feedback-box" id="q-feedback" style="display:none"></div>
+  <div class="next-row" id="q-next-row" style="display:none">
+    <button class="next-btn" onclick="nextCard()"><span id="next-lbl">Next</span> <span style="font-size:1rem">→</span></button>
+  </div>
+</section>
 
-  <!-- RESULT -->
-  <section class="screen" id="screen-result">
-    <h2 class="result-title" id="result-title">Well done!</h2>
-    <p class="result-sub" id="result-sub">Here's how you did</p>
-    <div class="score-ring-wrap">
-      <svg viewBox="0 0 130 130" width="130" height="130">
-        <circle class="score-ring-bg" cx="65" cy="65" r="55" />
-        <circle class="score-ring-fill" id="ring-fill" cx="65" cy="65" r="55" stroke-dasharray="345.4" stroke-dashoffset="345.4" />
-      </svg>
-      <div class="score-pct">
-        <div class="score-pct-num" id="r-pct">0%</div>
-        <div class="score-pct-lbl">score</div>
-      </div>
+<!-- RESULT -->
+<section class="screen" id="screen-result">
+  <h2 class="result-title" id="result-title">Well done!</h2>
+  <p class="result-sub" id="result-sub">Here's how you did</p>
+  <div class="score-ring-wrap">
+    <svg viewBox="0 0 130 130" width="130" height="130">
+      <circle class="score-ring-bg" cx="65" cy="65" r="55" />
+      <circle class="score-ring-fill" id="ring-fill" cx="65" cy="65" r="55" stroke-dasharray="345.4" stroke-dashoffset="345.4" />
+    </svg>
+    <div class="score-pct">
+      <div class="score-pct-num" id="r-pct">0%</div>
+      <div class="score-pct-lbl">score</div>
     </div>
-    <div class="result-stats">
-      <div class="rs-card rs-correct">
-        <div class="rs-num" id="r-correct">0</div>
-        <div class="rs-lbl">correct</div>
-      </div>
-      <div class="rs-card rs-wrong">
-        <div class="rs-num" id="r-wrong">0</div>
-        <div class="rs-lbl">missed</div>
-      </div>
+  </div>
+  <div class="result-stats">
+    <div class="rs-card rs-correct">
+      <div class="rs-num" id="r-correct">0</div>
+      <div class="rs-lbl">correct</div>
     </div>
-    <div class="result-btns">
-      <button class="btn-primary" id="result-restart-btn" onclick="restartAll()">↺ Restart all</button>
-      <button class="btn-secondary" id="retry-missed-btn" onclick="retryMissed()">Retry missed</button>
-      <button class="btn-secondary" id="result-new-list-btn" onclick="goTo('screen-home')">New list</button>
+    <div class="rs-card rs-wrong">
+      <div class="rs-num" id="r-wrong">0</div>
+      <div class="rs-lbl">missed</div>
     </div>
-    <div class="missed-list" id="missed-list" style="display:none">
-      <div class="missed-title">Words to review</div>
-      <div id="missed-items"></div>
-    </div>
-  </section>
+  </div>
+  <div class="result-btns">
+    <button class="btn-primary" id="result-restart-btn" onclick="restartAll()">↺ Restart all</button>
+    <button class="btn-secondary" id="retry-missed-btn" onclick="retryMissed()">Retry missed</button>
+    <button class="btn-secondary" id="result-new-list-btn" onclick="goTo('screen-home')">New list</button>
+  </div>
+  <div class="missed-list" id="missed-list" style="display:none">
+    <div class="missed-title">Words to review</div>
+    <div id="missed-items"></div>
+  </div>
+</section>
 
-  <script src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

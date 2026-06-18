@@ -480,8 +480,8 @@ function goToQuizSetup() {
 // ── Quiz Helpers ──
 function norm(s) {
   return s.toLowerCase()
-    .replace(/[äÄ]/g, 'ae').replace(/[öÖ]/g, 'oe').replace(/[üÜ]/g, 'ue').replace(/ß/g, 'ss')
-    .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+      .replace(/[äÄ]/g, 'ae').replace(/[öÖ]/g, 'oe').replace(/[üÜ]/g, 'ue').replace(/ß/g, 'ss')
+      .replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
 }
 
 function getAlts(s) {
@@ -619,7 +619,7 @@ function showResult() {
   if (missedCards.length > 0) {
     missedList.style.display = '';
     missedItems.innerHTML = missedCards.map(c =>
-      `<div class="missed-item"><span class="missed-en">${c.en}</span><span class="missed-de">${c.de}</span></div>`
+        `<div class="missed-item"><span class="missed-en">${c.en}</span><span class="missed-de">${c.de}</span></div>`
     ).join('');
   } else {
     missedList.style.display = 'none';
