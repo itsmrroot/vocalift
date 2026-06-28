@@ -7,6 +7,7 @@ let cur = 0, correct = 0, wrong = 0;
 let checked = false;
 let entryRows = [];
 let quizDir = 'both'; // 'both' | 'en_de' | 'de_en'
+let currentScreen = 'screen-home';
 
 // ── i18n ──
 let lang = localStorage.getItem('vocalift-lang') || 'en';
@@ -17,8 +18,6 @@ const TRANSLATIONS = {
     'hero-title': 'Learn any words,<br><em>your way</em>',
     'hero-sub': 'Add your own vocabulary list, then let VocaLift quiz you until you know every word cold.',
     'btn-manual': '✏️ Enter words manually',
-    'btn-upload': '📂 Upload a file',
-    'upload-hint': 'Supported formats: <code>.csv</code> or <code>.txt</code> — one pair per line, separated by a comma, tab, or semicolon.<br>Example: <code>keyboard,Tastatur</code>',
     'feat1-title': 'Your own words',
     'feat1-desc': 'Type pairs manually or upload a file instantly.',
     'feat2-title': 'Choose direction',
@@ -85,8 +84,6 @@ const TRANSLATIONS = {
     'hero-title': 'Lerne Vokabeln,<br><em>auf deine Art</em>',
     'hero-sub': 'Füge deine eigene Vokabelliste hinzu und lass dich von VocaLift abfragen, bis du jedes Wort sicher weißt.',
     'btn-manual': '✏️ Wörter manuell eingeben',
-    'btn-upload': '📂 Datei hochladen',
-    'upload-hint': 'Unterstützte Formate: <code>.csv</code> oder <code>.txt</code> — ein Paar pro Zeile, getrennt durch Komma, Tab oder Semikolon.<br>Beispiel: <code>keyboard,Tastatur</code>',
     'feat1-title': 'Eigene Wörter',
     'feat1-desc': 'Paare manuell eingeben oder sofort eine Datei hochladen.',
     'feat2-title': 'Richtung wählen',
@@ -156,7 +153,6 @@ function t(key, ...args) {
 }
 
 function applyLang() {
-  // Segmented EN/DE switch — highlight active lang
   document.getElementById('lang-en').classList.toggle('active', lang === 'en');
   document.getElementById('lang-de').classList.toggle('active', lang === 'de');
 
@@ -165,8 +161,6 @@ function applyLang() {
   document.querySelector('.hero-title').innerHTML = t('hero-title');
   document.querySelector('.hero-sub').textContent = t('hero-sub');
   document.getElementById('btn-manual').textContent = t('btn-manual');
-  document.getElementById('btn-upload-file').textContent = t('btn-upload');
-  document.querySelector('.upload-hint').innerHTML = t('upload-hint');
   const feats = document.querySelectorAll('.feat');
   feats[0].querySelector('.feat-title').textContent = t('feat1-title');
   feats[0].querySelector('.feat-desc').textContent = t('feat1-desc');
@@ -258,11 +252,99 @@ themeBtn.onclick = () => {
   localStorage.setItem('vocalift-theme', isDark ? 'light' : 'dark');
 };
 
+// ── Session State Persistence ──
+function saveState() {
+  try {
+    sessionStorage.setItem('vocalift-state', JSON.stringify({
+      screen: currentScreen,
+      wordCount,
+      entryRows,
+      wordList,
+      quizDir,
+      deck,
+      cur,
+      correct,
+      wrong,
+      missedCards,
+    }));
+  } catch (e) {}
+}
+
+function restoreState() {
+  try {
+    const raw = sessionStorage.getItem('vocalift-state');
+    if (!raw) return;
+    const s = JSON.parse(raw);
+
+    wordCount  = s.wordCount  ?? 15;
+    entryRows  = s.entryRows  ?? [];
+    wordList   = s.wordList   ?? [];
+    quizDir    = s.quizDir    ?? 'both';
+    deck       = s.deck       ?? [];
+    cur        = s.cur        ?? 0;
+    correct    = s.correct    ?? 0;
+    wrong      = s.wrong      ?? 0;
+    missedCards = s.missedCards ?? [];
+
+    const screen = s.screen ?? 'screen-home';
+
+    if (screen === 'screen-setup') {
+      // Restore chip highlight
+      const chipValues = [5, 10, 15, 20, 30];
+      document.querySelectorAll('.chip').forEach(c => {
+        c.classList.toggle('active', parseInt(c.textContent) === wordCount);
+      });
+      if (!chipValues.includes(wordCount)) {
+        document.getElementById('custom-count').value = wordCount;
+      }
+      goTo('screen-setup');
+      return;
+    }
+
+    if (screen === 'screen-enter' && entryRows.length > 0) {
+      const container = document.getElementById('word-entries');
+      container.innerHTML = '';
+      entryRows.forEach((pair, i) => {
+        container.appendChild(createWordCard(i, pair.en, pair.de));
+      });
+      updateEntryProgress();
+      document.getElementById('enter-title').textContent = t('enter-title');
+      document.getElementById('enter-subtitle').textContent = t('enter-subtitle');
+      document.getElementById('enter-back-btn').onclick = () => goTo('screen-setup');
+      goTo('screen-enter');
+      return;
+    }
+
+    if (screen === 'screen-quiz-settings' && wordList.length > 0) {
+      const dirMap = { both: 'dir-both', en_de: 'dir-en', de_en: 'dir-de' };
+      document.querySelectorAll('.dir-option').forEach(d => d.classList.remove('active'));
+      document.getElementById(dirMap[quizDir] || 'dir-both')?.classList.add('active');
+      goTo('screen-quiz-settings');
+      return;
+    }
+
+    if (screen === 'screen-quiz' && deck.length > 0 && cur < deck.length) {
+      document.getElementById('qs-correct').textContent = correct;
+      document.getElementById('qs-wrong').textContent = wrong;
+      goTo('screen-quiz');
+      showCard();
+      return;
+    }
+
+    if (screen === 'screen-result' && (correct + wrong) > 0) {
+      showResult();
+      return;
+    }
+  } catch (e) {}
+}
+
 // ── Navigation ──
 function goTo(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  currentScreen = id;
   window.scrollTo(0, 0);
+  saveState();
 }
 
 // ── Setup ──
@@ -271,6 +353,7 @@ function selectCount(n, el) {
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('custom-count').value = '';
+  saveState();
 }
 
 function onCustomCount(inp) {
@@ -278,6 +361,7 @@ function onCustomCount(inp) {
   if (v >= 2) {
     wordCount = v;
     document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    saveState();
   }
 }
 
@@ -312,7 +396,6 @@ function parseWordFile(text) {
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith('#'));
   const pairs = [];
   for (const line of lines) {
-    // Try comma, semicolon, tab as separators
     const sep = line.includes('\t') ? '\t' : line.includes(';') ? ';' : ',';
     const parts = line.split(sep).map(p => p.trim()).filter(Boolean);
     if (parts.length >= 2) {
@@ -323,8 +406,7 @@ function parseWordFile(text) {
 }
 
 function loadUploadedWords(pairs, filename) {
-  // Build review form from parsed pairs
-  buildEntryForm(0); // clear
+  buildEntryForm(0);
   entryRows = [];
   const container = document.getElementById('word-entries');
   container.innerHTML = '';
@@ -396,7 +478,6 @@ function createWordCard(idx, enVal, deVal) {
 }
 
 function getRowIndex(inp) {
-  // Find the actual index in entryRows by matching card position in DOM
   const allCards = [...document.querySelectorAll('#word-entries .word-card')];
   const card = inp.closest('.word-card');
   return allCards.indexOf(card);
@@ -424,7 +505,7 @@ function deleteWordRow(btn) {
   const card = btn.closest('.word-card');
   const allCards = [...document.querySelectorAll('#word-entries .word-card')];
   const idx = allCards.indexOf(card);
-  if (entryRows.length <= 1) return; // keep at least 1
+  if (entryRows.length <= 1) return;
   entryRows.splice(idx, 1);
   card.remove();
   rebuildWordNumbers();
@@ -435,14 +516,12 @@ function rebuildWordNumbers() {
   document.querySelectorAll('#word-entries .word-num').forEach((el, i) => {
     el.textContent = `${t('word-n')} ${i + 1}`;
   });
-  // re-sync data-idx on all inputs
   document.querySelectorAll('#word-entries .word-card').forEach((card, i) => {
     card.querySelectorAll('input').forEach(inp => inp.dataset.idx = i);
   });
 }
 
 function syncEntryRowsFromDOM() {
-  // Re-read all values from inputs into entryRows (needed after deletes/reorders)
   entryRows = [];
   document.querySelectorAll('#word-entries .word-card').forEach(card => {
     const enInp = card.querySelector('input[data-lang="en"]');
@@ -462,6 +541,7 @@ function updateEntryProgress() {
   document.getElementById('ep-fill').style.width = pct + '%';
   document.getElementById('ep-count').textContent = t('n-filled', filled, total);
   document.getElementById('start-quiz-btn').disabled = filled < 2;
+  saveState();
 }
 
 // ── Quiz Direction ──
@@ -469,6 +549,7 @@ function selectDir(dir, el) {
   quizDir = dir;
   document.querySelectorAll('.dir-option').forEach(d => d.classList.remove('active'));
   el.classList.add('active');
+  saveState();
 }
 
 function goToQuizSetup() {
@@ -573,10 +654,12 @@ function checkAnswer() {
   fb.style.display = 'flex';
   document.getElementById('q-next-row').style.display = 'flex';
   document.getElementById('q-hint').textContent = '';
+  saveState();
 }
 
 function nextCard() {
   cur++;
+  saveState();
   if (cur >= deck.length) showResult();
   else showCard();
 }
@@ -645,5 +728,28 @@ function retryMissed() {
   showCard();
 }
 
-// Apply saved language on load
+// ── Drag & Drop ──
+function onDragOver(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.add('drag-over');
+}
+function onDragLeave(e) {
+  document.getElementById('upload-zone').classList.remove('drag-over');
+}
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const parsed = parseWordFile(ev.target.result);
+    if (parsed.length === 0) { alert(t('alert-no-pairs')); return; }
+    loadUploadedWords(parsed, file.name);
+  };
+  reader.readAsText(file);
+}
+
+// ── Init ──
 applyLang();
+restoreState();
