@@ -76,7 +76,7 @@ const TRANSLATIONS = {
     'result-60': 'Good effort!',
     'result-low': 'Keep practicing!',
     'fb-correct': '<span class="fb-icon">✓</span><span><strong>Correct!</strong></span>',
-    'fb-wrong': (a) => `<span class="fb-icon">✗</span><span><strong>Not quite.</strong> Answer: <em>${a}</em></span>`,
+    'fb-wrong': (a) => `<span class="fb-icon">✗</span><span><strong>Not quite.</strong> Answer: <em>${escHtml(a)}</em></span>`,
     'alert-no-pairs': 'Could not find any word pairs in the file.\n\nMake sure each line has two words separated by a comma, tab, or semicolon.\nExample: keyboard,Tastatur',
   },
   de: {
@@ -142,7 +142,7 @@ const TRANSLATIONS = {
     'result-60': 'Gute Leistung!',
     'result-low': 'Weiter üben!',
     'fb-correct': '<span class="fb-icon">✓</span><span><strong>Richtig!</strong></span>',
-    'fb-wrong': (a) => `<span class="fb-icon">✗</span><span><strong>Nicht ganz.</strong> Antwort: <em>${a}</em></span>`,
+    'fb-wrong': (a) => `<span class="fb-icon">✗</span><span><strong>Nicht ganz.</strong> Antwort: <em>${escHtml(a)}</em></span>`,
     'alert-no-pairs': 'Keine Wortpaare in der Datei gefunden.\n\nJede Zeile muss zwei Wörter enthalten, getrennt durch Komma, Tab oder Semikolon.\nBeispiel: keyboard,Tastatur',
   },
 };
@@ -265,6 +265,7 @@ function saveState() {
       cur,
       correct,
       wrong,
+      checked,
       missedCards,
     }));
   } catch (e) {}
@@ -323,7 +324,11 @@ function restoreState() {
       return;
     }
 
-    if (screen === 'screen-quiz' && deck.length > 0 && cur < deck.length) {
+    if (screen === 'screen-quiz' && deck.length > 0) {
+      // If the card was already answered before refresh, advance past it
+      // to avoid the user re-answering and double-counting the score.
+      if (s.checked && cur < deck.length) cur++;
+      if (cur >= deck.length) { showResult(); return; }
       document.getElementById('qs-correct').textContent = correct;
       document.getElementById('qs-wrong').textContent = wrong;
       goTo('screen-quiz');
@@ -659,6 +664,7 @@ function checkAnswer() {
 
 function nextCard() {
   cur++;
+  checked = false;
   saveState();
   if (cur >= deck.length) showResult();
   else showCard();
@@ -734,7 +740,10 @@ function onDragOver(e) {
   document.getElementById('upload-zone').classList.add('drag-over');
 }
 function onDragLeave(e) {
-  document.getElementById('upload-zone').classList.remove('drag-over');
+  const zone = document.getElementById('upload-zone');
+  if (!zone.contains(e.relatedTarget)) {
+    zone.classList.remove('drag-over');
+  }
 }
 function onDrop(e) {
   e.preventDefault();
